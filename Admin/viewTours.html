@@ -1,0 +1,186 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<html>
+<style>
+    .tablecss {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .tablecss td,
+    .tablecss th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    .tablecss tr:nth-child(odd) {
+        background-color: #f2f2f2;
+    }
+
+    .tablecss tr:hover {
+        background-color: #ddd;
+    }
+
+    .tablecss th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: center;
+        background-color: lavender;
+        color: black;
+        font-weight: bold;
+    }
+</style>
+
+<body onload="loadData()">
+    <center>
+        <h3>View Tours</h3>
+        <table id="viewtours" class="tablecss" style="width: 1000px;"></table>
+        <br><br><br>
+    </center>
+</body>
+
+<div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header" style="background-color:#EF0691">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <center>
+                <h4 class="modal-title" style="color:white">Update Tours</h4>
+              </center>
+            </div>
+            <div class="modal-body" style="background-color:#BFBCC0">
+              <div class="conatiner" style="margin-left: 150px">
+                    <input type="hidden" id="txtid">
+                <label for="">Tour Name</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="text" id="tournames1" placeholder="enter tourname" required><br /><br />
+                <label for="">Source</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="text" id="txtsource1" placeholder="Source" required><br /><br />
+                <label for="">Destination</label>&nbsp;&nbsp;
+                <input type="text" id="txtDestination1" placeholder="Destination" required><br /><br />
+                <label for="">Description</label>&nbsp;&nbsp;
+                <input type="text" id="descs1" placeholder="Description" required><br /><br />
+                <label for="">Price</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="number" id="prices1" placeholder="Price" required><br /><br />
+                <label for="">Mobile No.</label>&nbsp;&nbsp;&nbsp;
+                <input type="text" id="mobilenos1" placeholder="enter mobile no." required><br /><br />
+              </div>
+            </div>
+            <div class="modal-footer" style="background-color:#BFBCC0  ">
+              <center>
+                <button type="button" onclick="ToUpdateurs()" class="btn btn-success">Update</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">cancel</button>
+              </center>
+            </div>
+          </div>
+        </div>
+      </div>
+
+</html>
+<script>
+    let tours = [];
+    let feedbacks = [];
+    function performAjax(httpMethod, url, params) {
+        const myPromise = new Promise((resolve, reject) => {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    resolve(this.responseText);
+                }
+                if (this.status == 500) {
+                    reject({ error: true, message: "ServerError" });
+                }
+                if (this.status == 404) {
+                    reject({ error: true, message: "Resource not found" });
+                }
+            };
+            xhttp.open(httpMethod, url, true);
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            params ? xhttp.send(params) : xhttp.send();
+        });
+        return myPromise;
+    }
+
+    function loadData() {
+      const getTourssPromise = performAjax("GET", "http://localhost:5599/Admin/viewtours");
+      getTourssPromise
+        .then((toursData) => {
+          ToursShow(toursData);
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function ToursShow(TourssData) {
+      tours = JSON.parse(TourssData);
+      let tableRows = ``;
+      tours.map((rec, index) => {
+        let editButton = `<a id="${rec._id}" class="glyphicon glyphicon-pencil" data-toggle="modal" data-target="#myModal" style="color:blue; font-size:22px;" onclick="editTours(event)"></a>`;
+          let deleteButton = `<a id="${rec._id}" class="glyphicon glyphicon-trash" style="color:blue; font-size:22px;" onclick="deleteTour(event)"></a>`;
+        tableRows += `<tr><td>${index + 1}</td><td>${rec.tourname}</td><td>${rec.source}</td><td>${rec.destination}</td><td>${rec.desc}</td><td>${rec.price}</td><td>${rec.mobileno}</td><td>${editButton}&nbsp;&nbsp;&nbsp;${deleteButton}</td></tr>`;
+      });
+      const tableHeaders = `<tr><th>Sno</th><th>TourName</th><th>Source</th><th>Destination</th><th>Desciption</th><th>Price</th><th>MobileNumber</th><th>&nbsp;&nbsp;&nbsp;Actions</th></tr>`;
+      const tabledata = `<table class="table table-striped" border=1>${tableHeaders}${tableRows}</table>`;
+      document.getElementById("viewtours").innerHTML = tabledata;
+    }
+
+    function editTours(event) {
+      
+      const getTourssPromise = performAjax("GET", `http://localhost:5599/Admin/${event.target.id}`);
+      getTourssPromise
+        .then((touData) => {
+          tours = JSON.parse(touData);
+          if (tours._id === event.target.id) {
+            $("#myModal").modal();
+            document.getElementById("txtid").value = tours._id;
+            document.getElementById("tournames1").value = tours.tourname;
+            document.getElementById("txtsource1").value = tours.source;
+            document.getElementById("txtDestination1").value = tours.destination;
+            document.getElementById("descs1").value = tours.desc;
+            document.getElementById("prices1").value = tours.price;
+            document.getElementById("mobilenos1").value = tours.mobileno;
+          }
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function ToUpdateurs() {
+      const id = document.getElementById("txtid").value;
+      const tourname = document.getElementById("tournames1").value;
+      const source = document.getElementById("txtsource1").value;
+      const destination = document.getElementById("txtDestination1").value;
+      const desc = document.getElementById("descs1").value;
+      const price = document.getElementById("prices1").value;
+      const mobileno = document.getElementById("mobilenos1").value;
+      const getTourssPromise = performAjax('PUT', `http://localhost:5599/Admin/${id}`, JSON.stringify({ tourname, source, destination, desc, price, mobileno }));
+      getTourssPromise
+        .then((message) => {
+          loadData();
+          alert("Update Success");
+          $('#myModal').modal("hide");
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function deleteTour(event) {
+        alert(event.target.id);
+      var result = confirm("Are you sure you want to delete?");
+      if (result) {
+        const getTourssPromise = performAjax('DELETE', `http://localhost:5599/Admin/${event.target.id}`);
+        getTourssPromise
+          .then(toursData => {
+            ToursShow(toursData);
+          })
+          .catch(err => {
+            alert(err.message);
+          })
+      }
+    }
+
+</script>

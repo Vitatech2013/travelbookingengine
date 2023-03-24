@@ -1,0 +1,95 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<html>
+
+<body onload="getUserName()">
+</body>
+
+</html>
+<br>
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">User Name</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" disabled="true" name="txtusernamess" id="txtusernamess"
+            placeholder="User Name"></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Email Id</label></div>
+    <div class="col-md-3"> <input type="text" class="form-control" disabled="true" name="txtemailids" id="txtemailids"
+        placeholder="Email Id"></div>
+    <div class="col-md-4"></div>
+</div><br>
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">FeedBack</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" name="txtmessage" id="txtmessage" placeholder="Feedback">
+    </div>
+    <div class="col-md-4"></div>
+</div><br>
+
+<div class="row">
+    <div class="col-md-5"></div>
+    <div class="col-md-3"><button type="button" class="btn btn-info" onclick="Feedback()">Submit</button></div>
+    <div class="col-md-4"></div>
+</div>
+
+<script>
+    const username = sessionStorage.getItem("username");
+    function performAjax(httpMethod, url, params) {
+        const myPromise = new Promise((resolve, reject) => {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    resolve(this.responseText);
+                }
+                if (this.status == 500) {
+                    reject({ error: true, message: "ServerError" });
+                }
+                if (this.status == 404) {
+                    reject({ error: true, message: "Resource not found" });
+                }
+            };
+            xhttp.open(httpMethod, url, true);
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            params ? xhttp.send(params) : xhttp.send();
+        });
+        return myPromise;
+    }
+
+    function getUserName()
+    {
+        
+        document.getElementById("txtusernamess").value=sessionStorage.getItem("name");
+        document.getElementById("txtemailids").value=sessionStorage.getItem("email");
+    }
+
+    function Feedback() {
+      const username = document.getElementById("txtusernamess").value;
+      const emailid = document.getElementById("txtemailids").value;
+      const message = document.getElementById("txtmessage").value;
+      const getUserssPromise = performAjax(
+        "POST",
+        "http://localhost:5599/User/addfeedback",
+        JSON.stringify({ username, emailid, message })
+      );
+      getUserssPromise
+        .then((message) => {
+          empty();
+          alert("Feedback Sent");
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function empty() {
+      document.getElementById("txtusernamess").value = "";
+      document.getElementById("txtemailids").value = "";
+      document.getElementById("txtmessage").value = "";
+    } 
+</script>

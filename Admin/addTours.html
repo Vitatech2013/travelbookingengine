@@ -1,0 +1,115 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<html>
+
+<!-- <body onload="getUserNames()"> -->
+
+<body>
+</body>
+
+</html>
+<br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Tour Name</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" id="tournames" placeholder="TourName"></div>
+    <div class="col-md-4"></div>
+</div><br>
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Source</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" id="txtsource" placeholder="Source"></div>
+    <div class="col-md-4"></div>
+</div><br>
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Destination</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" id="txtDestination" placeholder="Destination">
+    </div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Description</label></div>
+    <div class="col-md-3"><textarea type="text" class="form-control" id="descs" placeholder="Description"></textarea></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Price</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" id="prices" placeholder="Price"></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Mobile No.</label></div>
+    <div class="col-md-3"><input type="number" class="form-control" id="mobilenos" placeholder="Mobile No."></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-5"></div>
+    <div class="col-md-3"><button type="button" class="btn btn-info" onclick="AddTour()">Submit</button></div>
+    <div class="col-md-4"></div>
+</div>
+<br>
+<br>
+<br>
+
+<script>
+    function performAjax(httpMethod, url, params) {
+        const myPromise = new Promise((resolve, reject) => {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    resolve(this.responseText);
+                }
+                if (this.status == 500) {
+                    reject({ error: true, message: "ServerError" });
+                }
+                if (this.status == 404) {
+                    reject({ error: true, message: "Resource not found" });
+                }
+            };
+            xhttp.open(httpMethod, url, true);
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            params ? xhttp.send(params) : xhttp.send();
+        });
+        return myPromise;
+    }
+
+    function AddTour() {
+
+      const tourname = document.getElementById("tournames").value;
+      const source = document.getElementById("txtsource").value;
+      const destination = document.getElementById("txtDestination").value;
+      const desc = document.getElementById("descs").value;
+      const price = document.getElementById("prices").value;
+      const mobileno = document.getElementById("mobilenos").value;
+      const getUserssPromise = performAjax(
+        "POST",
+        "http://localhost:5599/Admin/addtours",
+        JSON.stringify({ tourname, source, destination, desc, price, mobileno })
+      );
+      getUserssPromise
+        .then((message) => {
+          alert("Tour Added");
+          empty();
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function empty() {
+      document.getElementById("tournames").value = "";
+      document.getElementById("txtsource").value = "";
+      document.getElementById("txtDestination").value = "";
+      document.getElementById("descs").value = "";
+      document.getElementById("prices").value = "";
+      document.getElementById("mobilenos").value = "";
+    }
+
+</script>

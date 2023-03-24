@@ -1,0 +1,91 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<html>
+<style>
+    .tablecss {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .tablecss td,
+    .tablecss th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    .tablecss tr:nth-child(odd) {
+        background-color: #f2f2f2;
+    }
+
+    .tablecss tr:hover {
+        background-color: #ddd;
+    }
+
+    .tablecss th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: center;
+        background-color: lavender;
+        color: black;
+        font-weight: bold;
+    }
+</style>
+
+<body onload="loadData()">
+    <center>
+        <h3>View Tours</h3>
+        <table id="viewtours" class="tablecss" style="width: 1000px;"></table>
+        <br><br><br>
+    </center>
+</body>
+</html>
+<script>
+    let tours = [];
+    let feedbacks = [];
+    function performAjax(httpMethod, url, params) {
+        const myPromise = new Promise((resolve, reject) => {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    resolve(this.responseText);
+                }
+                if (this.status == 500) {
+                    reject({ error: true, message: "ServerError" });
+                }
+                if (this.status == 404) {
+                    reject({ error: true, message: "Resource not found" });
+                }
+            };
+            xhttp.open(httpMethod, url, true);
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            params ? xhttp.send(params) : xhttp.send();
+        });
+        return myPromise;
+    }
+
+    function loadData() {
+      const getTourssPromise = performAjax("GET", "http://localhost:5599/Admin/viewtours");
+      getTourssPromise
+        .then((toursData) => {
+          ToursShow(toursData);
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function ToursShow(TourssData) {
+      tours = JSON.parse(TourssData);
+      let tableRows = ``;
+      tours.map((rec, index) => {
+       
+        tableRows += `<tr><td>${index + 1}</td><td>${rec.tourname}</td><td>${rec.source}</td><td>${rec.destination}</td><td>${rec.desc}</td><td>${rec.price}</td><td>${rec.mobileno}</td></tr>`;
+      });
+      const tableHeaders = `<tr><th>Sno</th><th>TourName</th><th>Source</th><th>Destination</th><th>Desciption</th><th>Price</th><th>MobileNumber</th></tr>`;
+      const tabledata = `<table class="table table-striped" border=1>${tableHeaders}${tableRows}</table>`;
+      document.getElementById("viewtours").innerHTML = tabledata;
+    }
+
+</script>

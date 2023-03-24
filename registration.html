@@ -1,0 +1,106 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Name</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" name="sNames" id="sNames" placeholder="Name"></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Surname</label></div>
+    <div class="col-md-3"><input type="text" class="form-control" name="sSurnames" id="sSurnames"
+            placeholder="Surname"></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Password</label></div>
+    <div class="col-md-3"><input type="password" class="form-control" name="sPasswords" id="sPasswords"
+            placeholder="Passwords"></div>
+    <div class="col-md-4"></div>
+</div><br>
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Email Id</label></div>
+    <div class="col-md-3"><input type="email" class="form-control" name="sEmailIDs" id="sEmailIDs" placeholder="Email Id"></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Phone No.</label></div>
+    <div class="col-md-3"><input class="form-control" id="sPhoneNumbers" placeholder="PhoneNumber"></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><label for="">Address</label></div>
+    <div class="col-md-3"><textarea type="date" class="form-control" name="saddresss" id="saddresss" placeholder="Addresss"></textarea></div>
+    <div class="col-md-4"></div>
+</div><br>
+<div class="row">
+    <div class="col-md-5"></div>
+    <div class="col-md-3"><button type="button" class="btn btn-info" onclick="Register()">Register</button></div>
+    <div class="col-md-4"></div>
+</div>
+
+<script>
+    function performAjax(httpMethod, url, params) {
+        const myPromise = new Promise((resolve, reject) => {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    resolve(this.responseText);
+                }
+                if (this.status == 500) {
+                    reject({ error: true, message: "ServerError" });
+                }
+                if (this.status == 404) {
+                    reject({ error: true, message: "Resource not found" });
+                }
+            };
+            xhttp.open(httpMethod, url, true);
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            params ? xhttp.send(params) : xhttp.send();
+        });
+        return myPromise;
+    }
+
+    function Register() {
+
+        const name = document.getElementById("sNames").value;
+      const surname = document.getElementById("sSurnames").value;
+      const password = document.getElementById("sPasswords").value;
+      const emailid = document.getElementById("sEmailIDs").value;
+      const mobileno = document.getElementById("sPhoneNumbers").value;
+      const address = document.getElementById("saddresss").value;
+      const getUserssPromise = performAjax(
+        "POST",
+        "http://localhost:5599/User",
+        JSON.stringify({ name, surname, password, emailid, mobileno, address })
+      );
+      getUserssPromise
+        .then((message) => {
+          empty();
+          alert("Successfully Registered");
+          $('#myModal').modal("hide");
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function empty() {
+      document.getElementById("sNames").value = "";
+      document.getElementById("sSurnames").value = "";
+      document.getElementById("sPasswords").value = "";
+      document.getElementById("sEmailIDs").value = "";
+      document.getElementById("sPhoneNumbers").value = "";
+      document.getElementById("saddresss").value = "";
+    }
+    
+
+</script>

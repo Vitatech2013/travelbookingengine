@@ -1,0 +1,181 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<html>
+<style>
+  .tablecss {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .tablecss td,
+  .tablecss th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+
+  .tablecss tr:nth-child(odd) {
+    background-color: #f2f2f2;
+  }
+
+  .tablecss tr:hover {
+    background-color: #ddd;
+  }
+
+  .tablecss th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: lavender;
+    color: black;
+    font-weight: bold;
+  }
+</style>
+
+<body onload="loadfeedback()">
+  <center>
+    <h3>View FeedBack</h3>
+    <table id="viewfeedback" class="tablecss" style="width: 1000px;"></table>
+  </center>
+</body>
+
+</html>
+<div class="container">
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Edit Post</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">App Name</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="appname" placeholder="App Name"><input
+                type="hidden" id="txtid"></div>
+            <div class="col-md-3"></div>
+          </div><br>
+
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Description</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="description" placeholder="Description">
+            </div>
+            <div class="col-md-3"></div>
+          </div><br>
+
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Category</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="category" placeholder="Category"></div>
+            <div class="col-md-3"></div>
+          </div><br>
+
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Updated Version</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="updatedversion"
+                placeholder="Updated Version">
+            </div>
+            <div class="col-md-3"></div>
+          </div><br>
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Updation Date</label></div>
+            <div class="col-md-4"><input type="text" width="100px" class="form-control" id="updationdate"
+                placeholder="Updation Date"></div>
+            <div class="col-md-3"></div>
+          </div><br>
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Memory Size</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="memorysize" placeholder="memorysize">
+            </div>
+            <div class="col-md-3"></div>
+          </div><br>
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Language</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="language" placeholder="Language"></div>
+            <div class="col-md-3"></div>
+          </div><br>
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Seller</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="seller" placeholder="Seller"></div>
+            <div class="col-md-3"></div>
+          </div><br>
+          <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-2"><label for="">Apps Price</label></div>
+            <div class="col-md-4"><input type="text" class="form-control" id="appsprice" placeholder="Appsprice"></div>
+            <div class="col-md-3"></div>
+            <br> <br> <br>
+            <div class="row">
+              <div class="col-md-5"></div>
+              <div class="col-md-3"><button type="button" class="btn btn-info" onclick="updatePosts()">Update</button>
+              </div>
+              <div class="col-md-4"></div>
+            </div><br>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  <script>
+    function performAjax(httpMethod, url, params) {
+      const myPromise = new Promise((resolve, reject) => {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            resolve(this.responseText);
+          }
+          if (this.status == 500) {
+            reject({ error: true, message: "ServerError" });
+          }
+          if (this.status == 404) {
+            reject({ error: true, message: "Resource not found" });
+          }
+        };
+        xhttp.open(httpMethod, url, true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        params ? xhttp.send(params) : xhttp.send();
+      });
+      return myPromise;
+    }
+
+    function loadfeedback() {
+      const getfeedbackPromise = performAjax("GET", "http://localhost:5599/Admin/viewfeedback");
+      getfeedbackPromise
+        .then((feedbackData) => {
+          feedbackShowss(feedbackData);
+          console.log(feedbackData);
+        })
+        .catch(err => {
+          alert(err.message);
+        })
+    }
+
+    function feedbackShowss(feedbackData) {
+      feedbacks = JSON.parse(feedbackData);
+      let tableRows = ``;
+      feedbacks.map((feedback, index) => {
+        tableRows += `<tr><td>${index + 1}</td><td>${feedback.username}</td><td>${feedback.emailid}</td><td>${feedback.message}</td></tr>`;
+      });
+      const tableHeaders = `<tr><th>Sno</th><th>Username</th><th>Emailid</th><th>Message</th></tr>`;
+      const tabledata = `<table class="table table-striped" border=1>${tableHeaders}${tableRows}</table>`;
+      document.getElementById("viewfeedback").innerHTML = tabledata;
+    }
+  </script>
